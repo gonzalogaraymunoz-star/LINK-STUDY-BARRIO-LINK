@@ -1,0 +1,5 @@
+import { NextRequest,NextResponse } from "next/server";
+import { requestAuthorized } from "@/lib/auth";
+import { createStudy,listCatalog } from "@/lib/study/repository";
+export async function GET(request:NextRequest){if(!requestAuthorized(request))return NextResponse.json({error:"unauthorized"},{status:401});try{const c=await listCatalog();return NextResponse.json({studies:c.studies})}catch(e){return NextResponse.json({error:e instanceof Error?e.message:"list_failed"},{status:500})}}
+export async function POST(request:NextRequest){if(!requestAuthorized(request))return NextResponse.json({error:"unauthorized"},{status:401});try{const b=await request.json();if(!b.controlId||!b.title||!b.question)return NextResponse.json({error:"missing_required_fields"},{status:400});const study=await createStudy({controlId:b.controlId,clientId:b.clientId||null,projectId:b.projectId||null,title:b.title,question:b.question,studyType:b.studyType,questionLevel:b.questionLevel,actor:"human"});return NextResponse.json({study},{status:201})}catch(e){return NextResponse.json({error:e instanceof Error?e.message:"create_failed"},{status:500})}}
