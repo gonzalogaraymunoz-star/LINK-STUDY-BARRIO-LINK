@@ -135,5 +135,8 @@ export function createStudyMcpHandler() {
     }, async ({ run_id }) => {
       try { const run = await syncMirofishRun(run_id, "chatgpt"); return ok("MiroFish run synchronized.", { run }); } catch (e) { return fail(e); }
     });
-  }, {}, { basePath: "/mcp", maxDuration: 60 });
+  }, {
+    serverInfo: { name: "link-study", version: "1.0.0" },
+    instructions: "LINK Study is the consultative research layer for the LINK ecosystem. Read live Control Central context, preserve truth classes, never represent simulations as facts, and never write operational business state from a study.",
+  });
 }
