@@ -106,10 +106,28 @@ export async function getStudy(studyId: string) {
   return { study: study.data, snapshots: snapshots.data || [], findings: findings.data || [], opportunities: opportunities.data || [], runs: runs.data || [] };
 }
 
-export async function getLatestSnapshot(studyId: string, includeContext = true) {
+export async function getLatestSnapshot(studyId: string, includeContext = true): Promise<any | null> {
   const supabase = db();
-  const select = includeContext ? "*" : "id,study_id,snapshot_version,coverage,source_counts,source_digest,created_at";
-  const { data, error } = await supabase.from("study_snapshots").select(select).eq("study_id", studyId).order("snapshot_version", { ascending: false }).limit(1).maybeSingle();
+
+  if (includeContext) {
+    const { data, error } = await supabase
+      .from("study_snapshots")
+      .select("*")
+      .eq("study_id", studyId)
+      .order("snapshot_version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+  }
+
+  const { data, error } = await supabase
+    .from("study_snapshots")
+    .select("id,study_id,snapshot_version,coverage,source_counts,source_digest,created_at")
+    .eq("study_id", studyId)
+    .order("snapshot_version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
   if (error) throw new Error(error.message);
   return data;
 }
